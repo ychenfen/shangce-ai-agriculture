@@ -1,0 +1,137 @@
+\section{AI技术工具选择与运用}
+\subsection{技术选型总览}
+本作品为团队自行研发的软件系统，核心AI技术为基于梯度提升决策树的次日参考蒸散回归，以及基于分割式共形预测的不确定性量化。表\ref{tab:stack}列出主要技术与工具及其选型依据。
+
+\begin{table}[H]\centering\small
+\caption{主要技术、工具与选型依据}\label{tab:stack}
+\begin{tabularx}{\linewidth}{@{}p{.20\linewidth}p{.25\linewidth}X@{}}\toprule
+环节 & 技术/工具 & 选型依据\\\midrule
+气象数据 & Open-Meteo历史接口（ERA5） & 覆盖全国、逐日连续、字段齐全，含FAO-56参考蒸散，CC BY 4.0许可\\
+特征工程 & pandas 2.3 & 按地区分组的滞后与滚动窗口计算，便于保证时间边界\\
+预测模型 & scikit-learn 1.7 梯度提升树（\texttt{\small HistGBR}） & 擅长中小规模结构化数据与非线性关系，CPU训练快，模型小\\
+不确定性 & 分割式共形预测 & 不依赖误差分布假设，实现简单，可在独立年份上校准\\
+决策规则 & FAO-56水量平衡 & 国际通行的灌溉计算框架，参数物理意义明确\\
+交互系统 & Python HTTP服务＋原生HTML/JS & 无需额外框架，离线可运行，便于部署到基层电脑\\
+测试 & pytest、Playwright & 覆盖计算逻辑与浏览器端交互\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{数据来源与质量控制}
+数据通过Open-Meteo历史天气接口获取\cite{om}，模式设为ERA5，时区为Asia/Shanghai，风速单位m/s，时间范围2018年1月1日至2025年12月31日。ERA5是欧洲中期天气预报中心发布的第五代全球再分析产品，将多源观测同化进数值模式，重建逐时大气状态\cite{era5}。选取华北平原及邻近的石家庄、郑州、济南三地作为示范点，它们分别代表冀中、豫中和鲁中的主要粮食产区。
+
+\begin{table}[H]\centering\small
+\caption{示范地点与接口返回网格}\label{tab:sites}
+\begin{tabular}{lrrrrr}\toprule
+地点 & 请求纬度 & 请求经度 & 网格纬度 & 网格经度 & 原始日数\\\midrule
+石家庄 & 38.04 & 114.51 & 38.00 & 114.50 & 2922\\
+郑州 & 34.75 & 113.62 & 34.75 & 113.50 & 2922\\
+济南 & 36.65 & 117.12 & 36.75 & 117.00 & 2922\\\bottomrule
+\end{tabular}
+\end{table}
+
+原始JSON完整保留返回坐标、海拔、字段单位与逐日数组，并记录请求URL、获取时间和SHA-256哈希。表\ref{tab:variables}列出所用变量。
+
+\begin{table}[H]\centering\small
+\caption{原始变量、单位与使用方式}\label{tab:variables}
+\begin{tabularx}{\linewidth}{@{}p{.25\linewidth}p{.18\linewidth}X@{}}\toprule
+变量 & 单位 & 用途\\\midrule
+平均、最高、最低气温 & $^\circ$C & 历史滞后值与7日均值\\
+平均相对湿度 & \% & 历史湿度状态\\
+10米高度风速 & m/s & 历史风速特征\\
+日降水量 & mm & 历史特征；目标日降水仅用于仿真中的日末水量更新\\
+短波辐射日总量 & MJ/m$^2$ & 历史能量条件\\
+地表平均气压 & hPa & 历史特征\\
+参考蒸散ET\textsubscript{0} & mm/日 & 历史特征与预测目标\\\bottomrule
+\end{tabularx}
+\end{table}
+
+读入阶段按完整日历重建索引，逐项检查：最高气温不低于最低气温，相对湿度位于0\,$\sim$\,100\%，风速、降水与参考蒸散非负，并屏蔽可能的缺测码。三地关键字段均无缺失，未做任何插补。
+
+\subsection{预测目标与季节结构}
+图\ref{fig:climate}按月汇总全部8766条记录。参考蒸散在5—7月达到峰值，而降水集中在7—8月，春季和初夏是需水与供水矛盾最突出的时段。
+
+\datafigure{climate.pdf}{三地2018—2025年月平均气象概况（降雨为日均毫米）}{fig:climate}
+
+预测目标为FAO-56 Penman--Monteith日参考蒸散\cite{fao}：
+\begin{equation}\label{eq:pm}
+\mathrm{ET}_0=\frac{0.408\Delta(R_n-G)+\gamma\dfrac{900}{T+273}u_2(e_s-e_a)}{\Delta+\gamma(1+0.34u_2)},
+\end{equation}
+其中$R_n$为净辐射，$G$为土壤热通量，$T$为日平均气温，$u_2$为2米风速，$e_s-e_a$为饱和水汽压差，$\Delta$为饱和水汽压曲线斜率，$\gamma$为湿度计常数。式\eqref{eq:pm}表明参考蒸散由能量项和空气动力学项共同决定，这也是特征设计中同时纳入辐射、温度、湿度与风速的依据。主实验以接口提供的\texttt{et0\_fao\_evapotranspiration}作为标签，工程中另有一份独立的FAO-56计算函数用于公式和单位核验。
+
+\subsection{特征构造与时间边界}
+对地区$s$的目标日$t$，原始变量集合为
+\begin{equation}
+\mathcal V=\{T_{\rm mean},T_{\max},T_{\min},RH,u_{10},P,R_s,p_a,\mathrm{ET}_0\}.
+\end{equation}
+对每个$v\in\mathcal V$构造4个滞后值和1个7日均值：
+\begin{align}
+L_{s,t}^{v,k}&=v_{s,t-k},\qquad k\in\{1,2,3,7\},\\
+M_{s,t}^{v,7}&=\frac{1}{7}\sum_{j=1}^{7}v_{s,t-j}.
+\end{align}
+共$9\times5=45$个历史特征，另加纬度、经度和年内日期$d_t$的周期编码
+\begin{equation}
+a_t=\sin(2\pi d_t/365.25),\qquad b_t=\cos(2\pi d_t/365.25),
+\end{equation}
+最终输入$x_{s,t}$为49维。目标日当天的气温、降水、辐射和参考蒸散均不进入输入。
+
+7日窗口按地区独立计算，避免跨地区拼接。实现上先\texttt{shift(1)}再\texttt{rolling(7)}，保证窗口不含目标日。单元测试将目标日及之后的全部气象字段大幅扰动，验证目标日的49维特征保持不变。每地前7天无法形成完整窗口，共删除21条记录。
+
+\subsection{梯度提升树模型}
+逐日气象输入是规模有限的结构化数据，变量间存在非线性和阈值效应。梯度提升决策树逐轮拟合损失函数的负梯度，将多棵弱回归树相加\cite{friedman}，在表格数据上表现稳健，XGBoost与LightGBM等实现已被广泛使用\cite{xgb,lgbm}。在国内ET\textsubscript{0}建模研究中，树集成模型也被证明能在有限气象输入下取得较好的精度\cite{fan,feng}。本作品采用scikit-learn的\texttt{HistGradientBoostingRegressor}\cite{sklearn}，其直方图分箱策略与LightGBM类似，在普通CPU上即可完成训练。
+
+以平方误差为学习目标：
+\begin{equation}
+\widehat f=\arg\min_f\sum_{i\in\mathcal D_{\rm tr}}\tfrac12\bigl(y_i-f(x_i)\bigr)^2+\Omega(f),
+\end{equation}
+其中$\Omega$为叶节点正则项。迭代形式为
+\begin{equation}
+f_m(x)=f_{m-1}(x)+\nu h_m(x),\quad m=1,\ldots,M,
+\end{equation}
+预测值截断为非负。超参数见表\ref{tab:hyper}，全部在接触测试集之前固定。
+
+\begin{table}[H]\centering\small
+\caption{模型超参数}\label{tab:hyper}
+\begin{tabularx}{\linewidth}{@{}l l X@{}}\toprule
+参数 & 取值 & 作用\\\midrule
+最大迭代轮数$M$ & 180 & 控制加性模型规模\\
+学习率$\nu$ & 0.055 & 控制每棵新树的权重\\
+最大叶节点数 & 15 & 限制单树复杂度\\
+叶节点最小样本数 & 25 & 防止过细分裂\\
+L2正则化 & 8 & 约束叶节点权重\\
+内部早停 & 关闭 & 避免随机划分打乱时间顺序\\
+随机种子 & 42 & 保证可重复\\
+损失函数 & 平方误差 & 连续非负标签回归\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{数据划分}
+按年份严格切分：2018—2022年为训练集（5457条），2023年为校准集（1095条），2024—2025年为测试集（2193条）。模型只在训练集上拟合，校准集只用于估计误差分位数，测试集不参与任何拟合、校准或调参。图\ref{fig:annual}展示各阶段的年度均值。
+
+\datafigure{annual.pdf}{各地区年度日均参考蒸散与数据分段（阴影为校准年和测试年）}{fig:annual}
+
+\subsection{预测区间的共形校准}
+令校准集大小$n_c=1095$，计算每个校准样本的绝对残差
+\begin{equation}
+r_i=|y_i-\widehat f(x_i)|.
+\end{equation}
+在名义失覆盖率$\alpha=0.1$下，取有限样本修正的次序统计量\cite{vovk,lei,conformal}
+\begin{equation}\label{eq:quantile}
+k=\min\{n_c,\lceil(n_c+1)(1-\alpha)\rceil\},\qquad q=r_{(k)}.
+\end{equation}
+本次$k=987$，$q=1.8506$ mm/日。测试区间为
+\begin{equation}\label{eq:interval}
+C(x)=\bigl[\max(0,\widehat f(x)-q),\ \widehat f(x)+q\bigr].
+\end{equation}
+由于参考蒸散非负，下界截断为0，因此低预测值处的区间宽度小于$2q$。共形预测的理论覆盖保证以样本可交换为前提，而气象序列存在时间相关和季节漂移，因此本作品在测试期逐月、逐地区检验经验覆盖率（第\ref{sec:results}章），而不是直接套用理论保证。
+
+\subsection{对照方法与迁移检验}
+为分离季节信息、近期天气信息和历史蒸散的贡献，设置四种对照：
+\begin{itemize}
+\item \textbf{地区月均值}：用训练年份中各地区各月的ET\textsubscript{0}均值作预测；
+\item \textbf{昨日值}：$\widehat y_t=y_{t-1}$，业务中最常用的持续性预测；
+\item \textbf{日期与位置}：同类梯度提升树，仅输入周期日期与经纬度4个特征；
+\item \textbf{去除历史蒸散}：保留近期天气特征，去掉全部历史ET\textsubscript{0}特征（消融实验）。
+\end{itemize}
+所有方法在同一2193条测试样本上评价。
+
+跨地区迁移检验另行训练三次模型，每次彻底排除一个地区的训练和校准数据：在另外两地2018—2022年拟合，用另外两地2023年残差校准，再在留出地区2024—2025年测试，用于评估模型推广到未见地区的能力。

@@ -1,0 +1,39 @@
+{
+  "global_bias": -0.08743141486548107,
+  "absolute_error_quantiles": {
+    "0.5": 0.5466264699999996,
+    "0.9": 1.7913189899999995,
+    "0.95": 2.2526442920000003,
+    "0.99": 3.2246698827999998
+  },
+  "model_beats_persistence_fraction": 0.5471956224350205,
+  "below_interval": 102,
+  "above_interval": 94,
+  "paired_policy_comparison": {
+    "sensor": {
+      "n": 36,
+      "water_difference_mean": 17.897383309990644,
+      "risk_difference_mean": -11.25,
+      "risk_lower_count": 36,
+      "risk_equal_count": 0,
+      "risk_higher_count": 0
+    },
+    "persistence": {
+      "n": 36,
+      "water_difference_mean": 0.7530749999999939,
+      "risk_difference_mean": -1.0277777777777777,
+      "risk_lower_count": 21,
+      "risk_equal_count": 15,
+      "risk_higher_count": 0
+    },
+    "ai": {
+      "n": 36,
+      "water_difference_mean": 5.645461111111108,
+      "risk_difference_mean": -1.25,
+      "risk_lower_count": 27,
+      "risk_equal_count": 9,
+      "risk_higher_count": 0
+    }
+  },
+  "analysis_scope": "Post-hoc descriptive diagnostics; no tuning or retraining."
+}

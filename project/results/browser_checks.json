@@ -1,0 +1,41 @@
+{
+  "checks": [
+    {
+      "name": "initial model and advice",
+      "passed": true
+    },
+    {
+      "name": "capacity warning",
+      "passed": true
+    },
+    {
+      "name": "download matches visible controls",
+      "passed": true
+    },
+    {
+      "name": "evidence table",
+      "passed": true
+    },
+    {
+      "name": "simulation table",
+      "passed": true
+    },
+    {
+      "name": "invalid request blocks export",
+      "passed": true
+    },
+    {
+      "name": "error recovery",
+      "passed": true
+    },
+    {
+      "name": "mobile no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "no uncaught browser errors",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

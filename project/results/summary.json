@@ -1,0 +1,319 @@
+{
+  "title": "墒策：可信需水预测与灌溉决策",
+  "splits": {
+    "train": 5457,
+    "calibration": 1095,
+    "test": 2193
+  },
+  "data_audit": [
+    {
+      "site": "shijiazhuang",
+      "rows": 2922,
+      "missing_cells": 0,
+      "requested_lat": 38.04,
+      "requested_lon": 114.51,
+      "returned_lat": 38.0,
+      "returned_lon": 114.5,
+      "elevation": 77.0,
+      "units": {
+        "time": "iso8601",
+        "temperature_2m_mean": "°C",
+        "temperature_2m_max": "°C",
+        "temperature_2m_min": "°C",
+        "relative_humidity_2m_mean": "%",
+        "wind_speed_10m_mean": "m/s",
+        "precipitation_sum": "mm",
+        "shortwave_radiation_sum": "MJ/m²",
+        "surface_pressure_mean": "hPa",
+        "et0_fao_evapotranspiration": "mm"
+      },
+      "source": "Open-Meteo ERA5; provider-calculated FAO ET0"
+    },
+    {
+      "site": "zhengzhou",
+      "rows": 2922,
+      "missing_cells": 0,
+      "requested_lat": 34.75,
+      "requested_lon": 113.62,
+      "returned_lat": 34.75,
+      "returned_lon": 113.5,
+      "elevation": 110.0,
+      "units": {
+        "time": "iso8601",
+        "temperature_2m_mean": "°C",
+        "temperature_2m_max": "°C",
+        "temperature_2m_min": "°C",
+        "relative_humidity_2m_mean": "%",
+        "wind_speed_10m_mean": "m/s",
+        "precipitation_sum": "mm",
+        "shortwave_radiation_sum": "MJ/m²",
+        "surface_pressure_mean": "hPa",
+        "et0_fao_evapotranspiration": "mm"
+      },
+      "source": "Open-Meteo ERA5; provider-calculated FAO ET0"
+    },
+    {
+      "site": "jinan",
+      "rows": 2922,
+      "missing_cells": 0,
+      "requested_lat": 36.65,
+      "requested_lon": 117.12,
+      "returned_lat": 36.75,
+      "returned_lon": 117.0,
+      "elevation": 136.0,
+      "units": {
+        "time": "iso8601",
+        "temperature_2m_mean": "°C",
+        "temperature_2m_max": "°C",
+        "temperature_2m_min": "°C",
+        "relative_humidity_2m_mean": "%",
+        "wind_speed_10m_mean": "m/s",
+        "precipitation_sum": "mm",
+        "shortwave_radiation_sum": "MJ/m²",
+        "surface_pressure_mean": "hPa",
+        "et0_fao_evapotranspiration": "mm"
+      },
+      "source": "Open-Meteo ERA5; provider-calculated FAO ET0"
+    }
+  ],
+  "metrics": {
+    "climatology": {
+      "n": 2193,
+      "mae": 0.9488341740837795,
+      "rmse": 1.2638846920492204,
+      "r2": 0.5949536386067455
+    },
+    "persistence": {
+      "n": 2193,
+      "mae": 0.8402507979936161,
+      "rmse": 1.1993843419928414,
+      "r2": 0.6352405289641749
+    },
+    "calendar_only": {
+      "n": 2193,
+      "mae": 0.9951449914715473,
+      "rmse": 1.3126303481082373,
+      "r2": 0.56310737912208
+    },
+    "no_et_history": {
+      "n": 2193,
+      "mae": 0.7800425693913449,
+      "rmse": 1.0756753105041874,
+      "r2": 0.7066053240131558
+    },
+    "ai": {
+      "n": 2193,
+      "mae": 0.7756801491105948,
+      "rmse": 1.0687954346863888,
+      "r2": 0.710346348517104
+    }
+  },
+  "sites": {
+    "jinan": {
+      "climatology": {
+        "n": 731,
+        "mae": 0.9100575232347816,
+        "rmse": 1.220729037579401,
+        "r2": 0.617678067220661
+      },
+      "persistence": {
+        "n": 731,
+        "mae": 0.7925991792065665,
+        "rmse": 1.116736193736994,
+        "r2": 0.6800428303160682
+      },
+      "calendar_only": {
+        "n": 731,
+        "mae": 0.9395352487978457,
+        "rmse": 1.2464954314393484,
+        "r2": 0.6013681045496777
+      },
+      "no_et_history": {
+        "n": 731,
+        "mae": 0.7358264522287569,
+        "rmse": 1.016049365128338,
+        "r2": 0.7351376182507599
+      },
+      "ai": {
+        "n": 731,
+        "mae": 0.7382157679468605,
+        "rmse": 1.0206776398968995,
+        "r2": 0.7327191375941684
+      }
+    },
+    "shijiazhuang": {
+      "climatology": {
+        "n": 731,
+        "mae": 0.9172001402897827,
+        "rmse": 1.226528034539031,
+        "r2": 0.6259780512205619
+      },
+      "persistence": {
+        "n": 731,
+        "mae": 0.8390971272229822,
+        "rmse": 1.226683939885125,
+        "r2": 0.6258829604834861
+      },
+      "calendar_only": {
+        "n": 731,
+        "mae": 0.9702387500680644,
+        "rmse": 1.289909927852054,
+        "r2": 0.5863234518547562
+      },
+      "no_et_history": {
+        "n": 731,
+        "mae": 0.7715977514797393,
+        "rmse": 1.0639411547121178,
+        "r2": 0.7185654922460776
+      },
+      "ai": {
+        "n": 731,
+        "mae": 0.7660709763659707,
+        "rmse": 1.0622227139664526,
+        "r2": 0.7194738845067481
+      }
+    },
+    "zhengzhou": {
+      "climatology": {
+        "n": 731,
+        "mae": 1.0192448587267746,
+        "rmse": 1.3407696079824258,
+        "r2": 0.5392316302236309
+      },
+      "persistence": {
+        "n": 731,
+        "mae": 0.8890560875512997,
+        "rmse": 1.2504859794010177,
+        "r2": 0.5991960452825551
+      },
+      "calendar_only": {
+        "n": 731,
+        "mae": 1.075660975548732,
+        "rmse": 1.3969168943619366,
+        "r2": 0.49983248218311216
+      },
+      "no_et_history": {
+        "n": 731,
+        "mae": 0.8327035044655385,
+        "rmse": 1.1431994698288597,
+        "r2": 0.6650203894407736
+      },
+      "ai": {
+        "n": 731,
+        "mae": 0.8227537030189531,
+        "rmse": 1.1211026290967478,
+        "r2": 0.6778448438839708
+      }
+    }
+  },
+  "transfer": {
+    "shijiazhuang": {
+      "n": 731,
+      "mae": 0.7688535138083419,
+      "rmse": 1.0821003490844983,
+      "r2": 0.7088765398014758,
+      "coverage": 0.9151846785225718,
+      "persistence_mae": 0.8390971272229822
+    },
+    "zhengzhou": {
+      "n": 731,
+      "mae": 0.8415328548017017,
+      "rmse": 1.1396699317090484,
+      "r2": 0.6670856425677176,
+      "coverage": 0.8796169630642955,
+      "persistence_mae": 0.8890560875512997
+    },
+    "jinan": {
+      "n": 731,
+      "mae": 0.7492196156276575,
+      "rmse": 1.0420746247826547,
+      "r2": 0.7213953864916344,
+      "coverage": 0.9069767441860465,
+      "persistence_mae": 0.7925991792065665
+    }
+  },
+  "interval": {
+    "jinan": {
+      "coverage": 0.9151846785225718,
+      "width": 3.60657655004972
+    },
+    "shijiazhuang": {
+      "coverage": 0.9138166894664843,
+      "width": 3.588608760266936
+    },
+    "zhengzhou": {
+      "coverage": 0.9028727770177839,
+      "width": 3.634753400805717
+    },
+    "all": {
+      "coverage": 0.9106247150022799,
+      "width": 3.6099795703741244
+    }
+  },
+  "q90": 1.8505826750747372,
+  "mae_improvement_pct": 7.684687600083883,
+  "paired_mae_difference_ci95": [
+    0.03317328767237828,
+    0.09648583188018277
+  ],
+  "inference_median_ms": 11.505000526085496,
+  "simulation": {
+    "central": {
+      "ai": {
+        "irrigation_mm": 373.3638,
+        "stress_days": 0.8333,
+        "drainage_mm": 80.2513,
+        "unmet_mm": 0.0
+      },
+      "calendar": {
+        "irrigation_mm": 550.0,
+        "stress_days": 8.8333,
+        "drainage_mm": 210.1852,
+        "unmet_mm": 0.0
+      },
+      "persistence": {
+        "irrigation_mm": 375.333,
+        "stress_days": 1.0,
+        "drainage_mm": 81.3352,
+        "unmet_mm": 0.0
+      },
+      "sensor": {
+        "irrigation_mm": 351.6654,
+        "stress_days": 9.3333,
+        "drainage_mm": 61.9013,
+        "unmet_mm": 0.0
+      },
+      "upper": {
+        "irrigation_mm": 377.0395,
+        "stress_days": 0.0,
+        "drainage_mm": 82.5415,
+        "unmet_mm": 0.0
+      }
+    },
+    "scenario_count": 180,
+    "assumptions": {
+      "season": "May-Sep",
+      "taw_mm": [
+        80,
+        120,
+        160
+      ],
+      "eta": [
+        0.7,
+        0.85
+      ],
+      "raw_fraction": 0.5,
+      "refill_target_fraction": 0.25,
+      "rain_effective_fraction": 0.8,
+      "cap_mm_day": 40,
+      "initial_deficit_fraction": 0.35
+    },
+    "warning": "简化土壤水桶仿真；没有田间产量、土壤传感器或实测节水证据。"
+  },
+  "elapsed_s": 7.695878792088479,
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3"
+  }
+}

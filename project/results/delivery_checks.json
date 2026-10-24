@@ -1,0 +1,283 @@
+{
+  "checked_utc": "2026-10-24T13:34:40.790905+00:00",
+  "checks": [
+    {
+      "name": "test_rows",
+      "passed": true
+    },
+    {
+      "name": "climatology_mae",
+      "passed": true
+    },
+    {
+      "name": "climatology_rmse",
+      "passed": true
+    },
+    {
+      "name": "climatology_r2",
+      "passed": true
+    },
+    {
+      "name": "persistence_mae",
+      "passed": true
+    },
+    {
+      "name": "persistence_rmse",
+      "passed": true
+    },
+    {
+      "name": "persistence_r2",
+      "passed": true
+    },
+    {
+      "name": "calendar_only_mae",
+      "passed": true
+    },
+    {
+      "name": "calendar_only_rmse",
+      "passed": true
+    },
+    {
+      "name": "calendar_only_r2",
+      "passed": true
+    },
+    {
+      "name": "no_et_history_mae",
+      "passed": true
+    },
+    {
+      "name": "no_et_history_rmse",
+      "passed": true
+    },
+    {
+      "name": "no_et_history_r2",
+      "passed": true
+    },
+    {
+      "name": "ai_mae",
+      "passed": true
+    },
+    {
+      "name": "ai_rmse",
+      "passed": true
+    },
+    {
+      "name": "ai_r2",
+      "passed": true
+    },
+    {
+      "name": "coverage",
+      "passed": true
+    },
+    {
+      "name": "input_dates_before_target",
+      "passed": true
+    },
+    {
+      "name": "180_unique_scenarios",
+      "passed": true
+    },
+    {
+      "name": "daily_to_scenario_irrigation_mm",
+      "passed": true
+    },
+    {
+      "name": "daily_to_scenario_stress_days",
+      "passed": true
+    },
+    {
+      "name": "daily_to_scenario_drainage_mm",
+      "passed": true
+    },
+    {
+      "name": "daily_to_scenario_unmet_mm",
+      "passed": true
+    },
+    {
+      "name": "central_ai_irrigation_mm",
+      "passed": true
+    },
+    {
+      "name": "central_ai_stress_days",
+      "passed": true
+    },
+    {
+      "name": "central_ai_drainage_mm",
+      "passed": true
+    },
+    {
+      "name": "central_ai_unmet_mm",
+      "passed": true
+    },
+    {
+      "name": "central_calendar_irrigation_mm",
+      "passed": true
+    },
+    {
+      "name": "central_calendar_stress_days",
+      "passed": true
+    },
+    {
+      "name": "central_calendar_drainage_mm",
+      "passed": true
+    },
+    {
+      "name": "central_calendar_unmet_mm",
+      "passed": true
+    },
+    {
+      "name": "central_persistence_irrigation_mm",
+      "passed": true
+    },
+    {
+      "name": "central_persistence_stress_days",
+      "passed": true
+    },
+    {
+      "name": "central_persistence_drainage_mm",
+      "passed": true
+    },
+    {
+      "name": "central_persistence_unmet_mm",
+      "passed": true
+    },
+    {
+      "name": "central_sensor_irrigation_mm",
+      "passed": true
+    },
+    {
+      "name": "central_sensor_stress_days",
+      "passed": true
+    },
+    {
+      "name": "central_sensor_drainage_mm",
+      "passed": true
+    },
+    {
+      "name": "central_sensor_unmet_mm",
+      "passed": true
+    },
+    {
+      "name": "central_upper_irrigation_mm",
+      "passed": true
+    },
+    {
+      "name": "central_upper_stress_days",
+      "passed": true
+    },
+    {
+      "name": "central_upper_drainage_mm",
+      "passed": true
+    },
+    {
+      "name": "central_upper_unmet_mm",
+      "passed": true
+    },
+    {
+      "name": "sha256_inputs/weather/shijiazhuang.json",
+      "passed": true
+    },
+    {
+      "name": "sha256_inputs/weather/zhengzhou.json",
+      "passed": true
+    },
+    {
+      "name": "sha256_inputs/weather/jinan.json",
+      "passed": true
+    },
+    {
+      "name": "墒策_技术方案_pages",
+      "passed": true
+    },
+    {
+      "name": "墒策_技术方案_text",
+      "passed": true
+    },
+    {
+      "name": "墒策_佐证材料_pages",
+      "passed": true
+    },
+    {
+      "name": "墒策_佐证材料_text",
+      "passed": true
+    },
+    {
+      "name": "墒策_答辩演示_pages",
+      "passed": true
+    },
+    {
+      "name": "墒策_答辩演示_text",
+      "passed": true
+    },
+    {
+      "name": "technical_pdf_under_10MB",
+      "passed": true
+    },
+    {
+      "name": "pptx_crc",
+      "passed": true
+    },
+    {
+      "name": "pptx_15_slides",
+      "passed": true
+    },
+    {
+      "name": "pptx_image_present",
+      "passed": true
+    },
+    {
+      "name": "video_3_to_5_minutes",
+      "passed": true
+    },
+    {
+      "name": "video_under_300MB",
+      "passed": true
+    },
+    {
+      "name": "video_and_audio_streams",
+      "passed": true
+    },
+    {
+      "name": "video_full_decode",
+      "passed": true
+    },
+    {
+      "name": "browser_checks",
+      "passed": true
+    }
+  ],
+  "pdfs": {
+    "墒策_技术方案": {
+      "pages": 33,
+      "bytes": 2435764
+    },
+    "墒策_佐证材料": {
+      "pages": 4,
+      "bytes": 1759196
+    },
+    "墒策_答辩演示": {
+      "pages": 15,
+      "bytes": 856400
+    }
+  },
+  "video": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1600,
+        "height": 1000
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio"
+      }
+    ],
+    "format": {
+      "duration": "208.915000",
+      "size": "9377261"
+    }
+  },
+  "scope": "本地文件核验：指标重算、仿真汇总一致性、原始数据哈希、文档与视频完整性。"
+}

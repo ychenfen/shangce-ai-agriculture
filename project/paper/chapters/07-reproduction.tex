@@ -1,0 +1,110 @@
+\section{附录}
+\subsection{数据资料}
+\subsubsection{原始数据与来源}
+原始数据为Open-Meteo历史天气接口返回的三地ERA5逐日气象（石家庄、郑州、济南，2018-01-01至2025-12-31，各2922天），以未改写的JSON保存在\file{inputs/weather/}，请求URL、获取时间与SHA-256哈希记录在\file{inputs/provenance.json}。数据按CC BY 4.0许可使用并注明来源\cite{om,license}。
+
+\subsubsection{处理后数据}
+\begin{table}[H]\centering\small
+\caption{主要数据文件}\label{tab:files}
+\begin{tabularx}{\linewidth}{@{}p{.42\linewidth}X@{}}\toprule
+文件 & 内容\\\midrule
+\file{results/weather_daily.csv} & 三地清洗后的逐日气象，8766行\\
+\file{results/predictions.csv} & 2193条测试样本的预测、区间、基线与标签\\
+\file{results/simulation_daily.csv} & 180组策略仿真的逐日水量记录，27540行\\
+\file{results/simulation_scenarios.csv} & 180组季节汇总结果\\
+\file{results/summary.json} & 实验汇总，界面与报告共用的数据源\\
+\file{results/report_*.csv} & 分月、分地区年份、极端误差与敏感性统计\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{主要符号}
+\begin{longtable}{@{}p{.19\linewidth}p{.19\linewidth}p{.54\linewidth}@{}}
+\caption{主要符号及含义}\label{tab:symbols}\\\toprule
+符号 & 单位 & 含义\\\midrule\endfirsthead
+\toprule 符号 & 单位 & 含义\\\midrule\endhead
+$s,t$ & — & 地区与目标日索引\\
+$x_{s,t}$ & — & 49维模型输入\\
+$y_{s,t}$ & mm/日 & 参考蒸散标签\\
+$\widehat{\mathrm{ET}}_{0,t}$ & mm/日 & 模型点预测\\
+$q$ & mm/日 & 校准残差分位数（区间半宽）\\
+$L_t,U_t$ & mm/日 & 预测区间下界、上界\\
+$K_{c,t}$ & — & 作物系数\\
+$\mathrm{TAW}$ & mm & 根区总可用水\\
+$\mathrm{RAW}$ & mm & 易利用水阈值，$p\,\mathrm{TAW}$\\
+$D_t$ & mm & 决策前根区亏缺\\
+$D_t^*$ & mm & 预计亏缺\\
+$p,\beta$ & — & 触发比例、回填目标比例\\
+$\eta$ & — & 灌溉效率\\
+$C$ & mm/日 & 日毛灌溉上限\\
+$I_t,I_t^{\rm net}$ & mm & 毛灌溉量、净补水量\\
+$P_t,\rho$ & mm、— & 日降水、有效降水比例\\
+$Q_t,\mathcal U_t$ & mm & 排水量、未满足需水量\\
+$W,S$ & mm、日 & 季节毛灌溉量、缺水风险日\\\bottomrule
+\end{longtable}
+
+\subsection{代码与模型}
+\subsubsection{代码结构}
+\begin{table}[H]\centering\small
+\caption{工程目录}\label{tab:code}
+\begin{tabularx}{\linewidth}{@{}p{.34\linewidth}X@{}}\toprule
+路径 & 说明\\\midrule
+\file{src/pipeline.py} & 数据读取与校验、特征构造、训练、共形校准、对照、迁移检验与策略仿真\\
+\file{src/agro.py} & FAO-56水量平衡、灌溉建议、参数校验与独立公式核验\\
+\file{app/} & 本地推理服务（\texttt{server.py}）与交互界面\\
+\file{models/shangce.joblib} & 已训练模型、特征列表、校准分位数与时间截止信息\\
+\file{tests/test_core.py} & 核心单元测试\\
+\file{scripts/} & 数据获取、报告图表生成、浏览器检查与交付核验脚本\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{运行与复现}
+环境为Python 3.12，核心依赖NumPy 2.2.6、pandas 2.3.3、scikit-learn 1.7.2、joblib 1.5.2，完整版本见\file{requirements.lock.txt}。在工程根目录执行：
+\begin{lstlisting}
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m src.pipeline          # 训练、评估与仿真
+.venv/bin/python -m pytest -q             # 核心测试
+.venv/bin/python scripts/report_analysis.py   # 诊断图表
+.venv/bin/python app/server.py --port 8765    # 启动系统
+\end{lstlisting}
+浏览器访问\texttt{http://127.0.0.1:8765}即可使用。原始数据随工程提供，训练与推理无需联网。
+
+\subsubsection{核心算法片段}
+以下为特征构造中保证时间边界的关键实现（节选自\file{src/pipeline.py}）：
+\begin{lstlisting}[language=Python]
+def features(weather):
+    all_frames=[]
+    for site,d in weather.groupby('site',sort=True):
+        d=d.sort_values('date').copy()
+        d['sin']=np.sin(2*np.pi*d.date.dt.dayofyear/365.25)
+        d['cos']=np.cos(2*np.pi*d.date.dt.dayofyear/365.25)
+        # 每行日期为预测目标日，只使用该日之前的历史数据
+        for col in PARAMS+['et0']:
+            for lag in [1,2,3,7]: d[f'{col}_lag{lag}']=d[col].shift(lag)
+            d[f'{col}_mean7']=d[col].shift(1).rolling(7,min_periods=7).mean()
+\end{lstlisting}
+
+\subsubsection{一个可复核的决策算例}
+系统导出的一条实际决策记录：济南，目标日2025年7月15日，上界策略参考蒸散8.0243 mm/日，输入$D=90$ mm、TAW=120 mm、$K_c=1.15$、$\eta=0.85$、$C=5$ mm。代入式\eqref{eq:projected}—\eqref{eq:capacity}：
+\begin{align}
+D^*&=90+1.15\times8.0243=99.2280\ \mathrm{mm},\\
+I^{\rm req}&=(99.2280-30)/0.85=81.4447\ \mathrm{mm},\\
+I&=\min(5,81.4447)=5\ \mathrm{mm},\qquad I^{\rm net}=0.85\times5=4.25\ \mathrm{mm},\\
+D^{\rm after}&=99.2280-4.25=94.9780\ \mathrm{mm}.
+\end{align}
+导出结果中预计亏缺为94.9780 mm，标记\texttt{capacity\_limited=true}，与手工计算一致，表明当日供水能力远不足以回填至目标亏缺。
+
+\subsubsection{容量与效率组合的完整结果}
+表\ref{tab:allsensitivity}列出全部30种“TAW—效率—策略”组合的六季平均结果。逐地区、逐年份的180组结果见工程文件：
+
+\file{results/simulation_scenarios.csv}
+
+\input{tables/sensitivity_longtable}
+
+\subsection{其他材料}
+\begin{itemize}
+\item \textbf{演示视频}：系统实际运行录屏，展示历史回放、灌溉建议、供水限制、模型验证与策略回测全流程；
+\item \textbf{答辩PPT}：作品背景、核心技术、实验结果、创新点与应用前景；
+\item \textbf{佐证材料}：数据来源与完整性校验、模型运行与测试记录、系统功能截图；
+\item \textbf{完整工程}：源码、原始数据、模型文件、逐日结果与复现脚本，按大赛要求上传至百度网盘。
+\end{itemize}

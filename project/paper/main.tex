@@ -1,0 +1,111 @@
+% !TEX program = xelatex
+\documentclass[UTF8,a4paper,11pt,fontset=fandol]{ctexart}
+\usepackage[left=25mm,right=23mm,top=25mm,bottom=24mm,headheight=16pt]{geometry}
+\usepackage{amsmath,amssymb,booktabs,tabularx,longtable,array,multirow}
+\usepackage{graphicx,float,xcolor,caption,enumitem,fancyhdr,setspace}
+\usepackage{listings,xurl,hyperref,tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+\definecolor{forest}{HTML}{294C3B}
+\definecolor{ink}{HTML}{26332C}
+\definecolor{muted}{HTML}{687368}
+\definecolor{paperline}{HTML}{D9DFD2}
+\hypersetup{colorlinks=true,linkcolor=forest,citecolor=forest,urlcolor=forest,
+ pdftitle={墒策：可信需水预测与灌溉决策——技术方案},pdfauthor={得分队（AIC-2026-54247845）},bookmarksnumbered=true}
+\setstretch{1.20}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{.15em}
+\setlength{\emergencystretch}{2em}
+\ctexset{section={format=\Large\bfseries\color{forest},beforeskip=1.2em,afterskip=.8em},
+ subsection={format=\large\bfseries\color{forest},beforeskip=1em,afterskip=.5em},
+ subsubsection={format=\normalsize\bfseries,beforeskip=.8em,afterskip=.4em}}
+\captionsetup{font=small,labelfont=bf,skip=7pt}
+\setlist{nosep,leftmargin=2em}
+\renewcommand{\arraystretch}{1.22}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\color{muted}墒策\quad 技术方案}
+\fancyhead[R]{\small\color{muted}AI＋农业}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{.3pt}
+\newcommand{\ET}{\mathrm{ET}_{0}}
+\newcommand{\MAE}{\operatorname{MAE}}
+\newcommand{\RMSE}{\operatorname{RMSE}}
+\newcommand{\clip}{\operatorname{clip}}
+\newcommand{\file}[1]{\texttt{\small\path{#1}}}
+\newcommand{\datafigure}[4][.94]{\begin{figure}[H]\centering\includegraphics[width=#1\linewidth]{figures/#2}\caption{#3}\label{#4}\end{figure}}
+\newcommand{\datatable}[4]{\begin{table}[H]\centering\small\caption{#2}\label{#3}\input{tables/#1}\par\vspace{4pt}{\footnotesize\color{muted}#4}\end{table}}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,
+ frame=single,rulecolor=\color{paperline},backgroundcolor=\color{white},showstringspaces=false}
+\begin{document}
+\begin{titlepage}
+\thispagestyle{empty}
+\setlength{\parindent}{0pt}
+\vspace*{8mm}
+\begin{center}
+{\Large 2026年第八届\par\vspace{2mm}全球校园人工智能算法精英大赛\par}
+\vspace{6mm}{\LARGE\bfseries 算法主题赛\quad AI＋农业\par}
+\vspace{4mm}{\LARGE 技术方案\par}
+\vspace{14mm}{\color{forest}\rule{.82\linewidth}{1.2pt}\par}
+\vspace{10mm}{\fontsize{44}{54}\selectfont\bfseries\color{forest}墒策\par}
+\vspace{5mm}{\fontsize{22}{32}\selectfont 可信需水预测与灌溉决策\par}
+\vspace{6mm}{\color{muted}\small “墒”取自土壤墒情（根区水分状况），“策”指灌溉决策\par}
+\vspace{10mm}{\color{forest}\rule{.82\linewidth}{1.2pt}\par}
+\end{center}
+\vfill
+\begin{center}
+\renewcommand{\arraystretch}{1.9}
+\begin{tabular}{@{}r@{\quad}l@{}}
+\large 团队名称： & \large 得分队\\
+\large 团队编号： & \large AIC-2026-54247845\\
+\large 赛题名称： & \large AI＋农业\\
+\large 作品名称： & \large 墒策：可信需水预测与灌溉决策\\
+\end{tabular}
+\end{center}
+\vspace{16mm}
+\begin{center}\large 日期：2026年10月24日\end{center}
+\vspace{6mm}
+\end{titlepage}
+\pagenumbering{Roman}
+\section*{摘要}\addcontentsline{toc}{section}{摘要}
+华北平原是我国主要的冬小麦—夏玉米产区，也是地下水超采最严重的地区之一，灌溉用水管理直接关系粮食安全与水资源可持续利用。生产中的灌溉决策多依赖经验：一方面难以预判次日作物耗水，另一方面单个天气预测值不包含误差信息，补水时机与补水量难以兼顾。针对这一问题，本作品设计并实现了“墒策”——一个将次日需水预测、预测不确定性量化与根区水量平衡核算连成闭环的灌溉决策系统。作品名中，“墒”指土壤墒情，即根区土壤水分状况；“策”指据此作出的灌溉决策。
+
+在数据层，系统使用Open-Meteo历史天气接口提供的ERA5再分析逐日气象数据，覆盖石家庄、郑州、济南三地2018—2025年，共8766条记录，以目标日前的气温、湿度、风速、降水、短波辐射、地表气压与历史参考蒸散构造49维特征。在模型层，采用直方图梯度提升树回归次日FAO-56参考蒸散（ET\textsubscript{0}），以2018—2022年训练、2023年独立校准、2024—2025年测试，严格按时间隔离；在此基础上用分割式共形方法给出名义90\%预测区间。在决策层，将预测ET\textsubscript{0}与作物系数、土壤总可用水、灌溉效率和日供水上限结合，按FAO-56水量平衡计算是否灌溉以及补多少水，并输出可追溯的决策记录。
+
+在2193条时间留出测试样本上，模型平均绝对误差为0.7757 mm/日，较“沿用昨日值”基线降低7.68\%；均方根误差1.0688 mm/日，决定系数0.7103；90\%预测区间的实际覆盖率为91.06\%。完全留出某一地区的迁移检验中，三地点预测均优于昨日值基线。在三地、两年、三档土壤容量、两档灌溉效率共180组生长季仿真中，基准情景下“区间上界”策略将缺水风险日由墒情阈值策略的9.33日降至0日，季均毛灌溉量377.04 mm，较定额日历灌溉少用31.4\%。诊断分析同时发现，6—7月高需水期区间覆盖率降至约78\%\,$\sim$\,79\%，据此提出分季节校准的改进方向。
+
+系统已实现历史回放、预测区间展示、土壤参数交互、供水能力检查和决策记录导出，代码、数据、模型与逐日结果全部可复现。本作品为灌溉方法教学、农技分析和试点前评估提供了一套可检验的工具，下一步将接入实时气象预报与田间墒情观测开展影子运行。
+
+\vspace{5mm}\noindent\textbf{关键词：}参考蒸散；梯度提升树；共形预测；根区水量平衡；灌溉决策；墒情
+\clearpage
+\setcounter{tocdepth}{2}
+\begingroup\setstretch{1}\fontsize{9.5}{10.5}\selectfont\setlength{\parskip}{0pt}\tableofcontents\endgroup
+\clearpage\pagenumbering{arabic}
+\input{chapters/01-overview}
+\input{chapters/02-requirements}
+\clearpage\input{chapters/03-methods}
+\clearpage\input{chapters/04-system}
+\clearpage\input{chapters/05-results}
+\clearpage\input{chapters/06-outlook}
+\clearpage\input{chapters/07-reproduction}
+\clearpage
+\addcontentsline{toc}{section}{参考文献}
+\begin{thebibliography}{99}\small
+\bibitem{fao} Allen R G, Pereira L S, Raes D, Smith M. Crop evapotranspiration: Guidelines for computing crop water requirements[R]. FAO Irrigation and Drainage Paper 56. Rome: FAO, 1998.
+\bibitem{pereira} Pereira L S, Allen R G, Smith M, Raes D. Crop evapotranspiration estimation with FAO56: Past and future[J]. Agricultural Water Management, 2015, 147: 4--20.
+\bibitem{fereres} Fereres E, Soriano M A. Deficit irrigation for reducing agricultural water use[J]. Journal of Experimental Botany, 2007, 58(2): 147--159.
+\bibitem{aquacrop} Steduto P, Hsiao T C, Raes D, Fereres E. AquaCrop---The FAO crop model to simulate yield response to water: I. Concepts and underlying principles[J]. Agronomy Journal, 2009, 101(3): 426--437.
+\bibitem{era5} Hersbach H, Bell B, Berrisford P, et al. The ERA5 global reanalysis[J]. Quarterly Journal of the Royal Meteorological Society, 2020, 146(730): 1999--2049.
+\bibitem{om} Open-Meteo. Historical Weather API[EB/OL]. [2026-10-13]. \url{https://open-meteo.com/en/docs/historical-weather-api}.
+\bibitem{fan} Fan J, Yue W, Wu L, et al. Evaluation of SVM, ELM and four tree-based ensemble models for predicting daily reference evapotranspiration using limited meteorological data in different climates of China[J]. Agricultural and Forest Meteorology, 2018, 263: 225--241.
+\bibitem{feng} Feng Y, Cui N, Gong D, Zhang Q, Zhao L. Evaluation of random forests and generalized regression neural networks for daily reference evapotranspiration modelling[J]. Agricultural Water Management, 2017, 193: 163--173.
+\bibitem{friedman} Friedman J H. Greedy function approximation: A gradient boosting machine[J]. The Annals of Statistics, 2001, 29(5): 1189--1232.
+\bibitem{xgb} Chen T, Guestrin C. XGBoost: A scalable tree boosting system[C]//Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. 2016: 785--794.
+\bibitem{lgbm} Ke G, Meng Q, Finley T, et al. LightGBM: A highly efficient gradient boosting decision tree[C]//Advances in Neural Information Processing Systems 30. 2017: 3146--3154.
+\bibitem{sklearn} Pedregosa F, Varoquaux G, Gramfort A, et al. Scikit-learn: Machine learning in Python[J]. Journal of Machine Learning Research, 2011, 12: 2825--2830.
+\bibitem{vovk} Vovk V, Gammerman A, Shafer G. Algorithmic Learning in a Random World[M]. New York: Springer, 2005.
+\bibitem{lei} Lei J, G'Sell M, Rinaldo A, Tibshirani R J, Wasserman L. Distribution-free predictive inference for regression[J]. Journal of the American Statistical Association, 2018, 113(523): 1094--1111.
+\bibitem{conformal} Angelopoulos A N, Bates S. A gentle introduction to conformal prediction and distribution-free uncertainty quantification[EB/OL]. arXiv:2107.07511, 2021.
+\bibitem{cqr} Romano Y, Patterson E, Cand\`es E. Conformalized quantile regression[C]//Advances in Neural Information Processing Systems 32. 2019.
+\bibitem{aci} Gibbs I, Cand\`es E. Adaptive conformal inference under distribution shift[C]//Advances in Neural Information Processing Systems 34. 2021.
+\bibitem{license} Open-Meteo. Licence[EB/OL]. [2026-10-13]. \url{https://open-meteo.com/en/licence}.
+\end{thebibliography}
+\end{document}

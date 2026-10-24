@@ -1,0 +1,25 @@
+{
+  "gross_mm": 5,
+  "net_mm": 4.25,
+  "projected_deficit_mm": 94.978,
+  "raw_mm": 60,
+  "capacity_limited": true,
+  "triggered": true,
+  "site": "jinan",
+  "date": "2025-07-15",
+  "mode": "upper",
+  "et0_mm": 8.024318532236466,
+  "mean_et0_mm": 6.173735857161729,
+  "upper_et0_mm": 8.024318532236466,
+  "inputs": {
+    "deficit": 90,
+    "taw": 120,
+    "eta": 0.85,
+    "cap": 5,
+    "kc": 1.15
+  },
+  "model_train_end": "2022-12-31",
+  "calibration_end": "2023-12-31",
+  "note": "田间参数由使用者输入；建议未扣除当日降雨，执行前请人工确认。",
+  "_signature": "{\"site\":\"jinan\",\"date\":\"2025-07-15\",\"mode\":\"upper\",\"deficit\":90,\"taw\":120,\"eta\":0.85,\"cap\":5,\"kc\":1.15}"
+}
